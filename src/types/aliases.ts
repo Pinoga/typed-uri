@@ -94,3 +94,24 @@ export type HexDigit =
   | "E"
   | "F"
   | Digit;
+
+type Decrement = [never, 0, 1, 2];
+export type Hex16Bits<
+  T extends string,
+  Acc extends number = 3,
+> = Acc extends never
+  ? never
+  : T extends HexDigit
+    ? T
+    : T extends `${HexDigit}${infer Rest}`
+      ? Hex16Bits<Rest, Decrement[Acc]> extends never
+        ? never
+        : T
+      : never;
+
+export type DecOctet =
+  | Digit
+  | `${Exclude<Digit, "0">}${Digit}`
+  | `1${Digit}${Digit}`
+  | `2${"0" | "1" | "2" | "3" | "4"}${Digit}`
+  | `25${"0" | "1" | "2" | "3" | "4" | "5"}`;

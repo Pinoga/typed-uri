@@ -56,6 +56,8 @@ export type Reserved = GenericDelimiter | SubDelimiter;
 
 export type PercentEncoded = `${Percent}${HexDigit}${HexDigit}`;
 
+export type UserInfoChar = Unreserved | PercentEncoded | SubDelimiter | Colon;
+
 export type PathChar =
   | Unreserved
   | PercentEncoded
