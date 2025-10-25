@@ -1,98 +1,33 @@
-export type Letter =
-  | "a"
-  | "b"
-  | "c"
-  | "d"
-  | "e"
-  | "f"
-  | "g"
-  | "h"
-  | "i"
-  | "j"
-  | "k"
-  | "l"
-  | "m"
-  | "n"
-  | "o"
-  | "p"
-  | "q"
-  | "r"
-  | "s"
-  | "t"
-  | "u"
-  | "v"
-  | "w"
-  | "x"
-  | "y"
-  | "z"
-  | "A"
-  | "B"
-  | "C"
-  | "D"
-  | "E"
-  | "F"
-  | "G"
-  | "H"
-  | "I"
-  | "J"
-  | "K"
-  | "L"
-  | "M"
-  | "N"
-  | "O"
-  | "P"
-  | "Q"
-  | "R"
-  | "S"
-  | "T"
-  | "U"
-  | "V"
-  | "W"
-  | "X"
-  | "Y";
-
-export type Plus = "+";
-export type Hyphen = "-";
-export type Dot = ".";
-export type Underscore = "_";
-export type Colon = ":";
-export type AtSign = "@";
-export type Percent = "%";
-export type Tilde = "~";
-export type DoubleSlash = "//";
-export type Slash = "/";
-export type QuestionMark = "?";
-export type NumberSign = "#";
-export type ExclamationMark = "!";
-export type DollarSign = "$";
-export type Ampersand = "&";
-export type SingleQuote = "'";
-export type LeftParenthesis = "(";
-export type RightParenthesis = ")";
-export type Asterisk = "*";
-export type PlusSign = "+";
-export type Comma = ",";
-export type SemiColon = ";";
-export type EqualSign = "=";
-export type LeftSquareBracket = "[";
-export type RightSquareBracket = "]";
-
-export type Digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
-
-export type HexDigit =
-  | "a"
-  | "b"
-  | "c"
-  | "d"
-  | "e"
-  | "f"
-  | "A"
-  | "B"
-  | "C"
-  | "D"
-  | "E"
-  | "F"
-  | Digit;
+import type {
+  Asterisk,
+  AtSign,
+  Colon,
+  Comma,
+  Digit,
+  DollarSign,
+  Dot,
+  DoubleSlash,
+  Empty,
+  EqualSign,
+  ExclamationMark,
+  HexDigit,
+  Hyphen,
+  LeftParenthesis,
+  LeftSquareBracket,
+  Letter,
+  NumberSign,
+  Percent,
+  Plus,
+  PlusSign,
+  QuestionMark,
+  RightParenthesis,
+  RightSquareBracket,
+  SemiColon,
+  SingleQuote,
+  Slash,
+  Tilde,
+  Underscore,
+} from "./types/aliases";
 
 export type GenericDelimiter =
   | Colon
@@ -116,14 +51,19 @@ export type SubDelimiter =
   | SemiColon
   | EqualSign;
 
-export type URIUnreserved = Letter | Digit | Hyphen | Dot | Underscore | Tilde;
-export type URIReserved = GenericDelimiter | SubDelimiter;
+export type Unreserved = Letter | Digit | Hyphen | Dot | Underscore | Tilde;
+export type Reserved = GenericDelimiter | SubDelimiter;
 
 export type PercentEncoded = `${Percent}${HexDigit}${HexDigit}`;
 
-export type PChar = URIUnreserved | PercentEncoded | Colon | AtSign;
+export type PathChar =
+  | Unreserved
+  | PercentEncoded
+  | SubDelimiter
+  | Colon
+  | AtSign;
 
-export type URISchemeRest<T extends string> = T extends
+export type SchemeRest<T extends string> = T extends
   | Letter
   | Digit
   | Plus
@@ -136,26 +76,55 @@ export type URISchemeRest<T extends string> = T extends
         | `${Plus}${infer Rest}`
         | `${Hyphen}${infer Rest}`
         | `${Dot}${infer Rest}`
-    ? URISchemeRest<Rest> extends never
+    ? SchemeRest<Rest> extends never
       ? never
       : T
     : never;
 
-export type URIScheme<T extends string> = T extends `${Letter}${infer Rest}`
-  ? URISchemeRest<Rest> extends never
+export type Scheme<T extends string> = T extends `${Letter}${infer Rest}`
+  ? SchemeRest<Rest> extends never
     ? never
     : T
   : never;
 
-const scheme1: URIScheme<"G----ttp..+"> = "G----ttp..+";
+const scheme1: Scheme<"G----ttp..+"> = "G----ttp..+";
 // @ts-expect-error empty schemes are not allowed
-const scheme2: URIScheme<""> = "";
+const scheme2: Scheme<""> = "";
 // @ts-expect-error schemes must start with a letter
-const scheme3: URIScheme<"9"> = "9";
+const scheme3: Scheme<"9"> = "9";
 // @ts-expect-error schemes must start with a letter
-const scheme4: URIScheme<"A"> = "A";
+const scheme4: Scheme<"A"> = "A";
 
-export type PathComponent = "";
+export type PathEmpty = Empty;
+
+export type PathSegment<T extends string> = T extends PathEmpty
+  ? T
+  : T extends PathChar
+    ? T
+    : T extends `${PathChar}${infer Rest}`
+      ? PathSegment<Rest> extends never
+        ? never
+        : T
+      : never;
+
+export type PathAbsolute<T extends string> = T extends PathEmpty
+  ? T
+  : T extends `${Slash}${PathSegment<infer _S>}`
+    ? T
+    : T extends `${Slash}${infer Segment}${Slash}${infer Rest}`
+      ? Segment extends PathSegment<Segment>
+        ? PathAbsolute<`${Slash}${Rest}`> extends never
+          ? never
+          : T
+        : never
+      : never;
+
+export type PathAbsoluteAtLeastOneSegment<T extends string> =
+  T extends PathEmpty
+    ? never
+    : T extends `${DoubleSlash}${infer _R}`
+      ? never
+      : PathAbsolute<T>;
 
 export type QueryLike = `?${string}`;
 export type PortLike = `${string}`;
