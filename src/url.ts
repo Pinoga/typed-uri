@@ -52,22 +52,52 @@ export type Letter =
   | "Y";
 
 export type Digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+
 export type Plus = "+";
 export type Hyphen = "-";
 export type Dot = ".";
+export type Underscore = "_";
+export type Tilde = "~";
+export type DoubleSlash = "//";
+export type Slash = "/";
+export type QuestionMark = "?";
+export type NumberSign = "#";
+
+export type URIUnreserved = Letter | Digit | Hyphen | Dot | Underscore | Tilde;
 
 export type URISchemeRest<T extends string> = T extends
-  | `${Letter}${infer Rest}`
-  | `${Digit}${infer Rest}`
-  | `${Plus}${infer Rest}`
-  | `${Hyphen}${infer Rest}`
-  | `${Dot}${infer Rest}`
-  ? URISchemeRest<Rest>
-  : never;
+  | Letter
+  | Digit
+  | Plus
+  | Hyphen
+  | Dot
+  ? T
+  : T extends
+        | `${Letter}${infer Rest}`
+        | `${Digit}${infer Rest}`
+        | `${Plus}${infer Rest}`
+        | `${Hyphen}${infer Rest}`
+        | `${Dot}${infer Rest}`
+    ? URISchemeRest<Rest> extends never
+      ? never
+      : T
+    : never;
 
 export type URIScheme<T extends string> = T extends `${Letter}${infer Rest}`
-  ? URISchemeRest<Rest>
+  ? URISchemeRest<Rest> extends never
+    ? never
+    : T
   : never;
+
+const scheme1: URIScheme<"G----ttp..+"> = "G----ttp..+";
+// @ts-expect-error empty schemes are not allowed
+const scheme2: URIScheme<""> = "";
+// @ts-expect-error schemes must start with a letter
+const scheme3: URIScheme<"9"> = "9";
+// @ts-expect-error schemes must start with a letter
+const scheme4: URIScheme<"A"> = "A";
+
+export type PathComponent = "";
 
 export type QueryLike = `?${string}`;
 export type PortLike = `${string}`;
