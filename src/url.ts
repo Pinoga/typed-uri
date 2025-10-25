@@ -63,6 +63,12 @@ export type PathChar =
   | Colon
   | AtSign;
 
+export type PathCharNoColon = Exclude<PathChar, ":">;
+
+export type QueryChar = PathChar | Slash | QuestionMark;
+
+export type FragmentChar = QueryChar;
+
 export type SchemeRest<T extends string> = T extends
   | Letter
   | Digit
@@ -125,6 +131,12 @@ export type PathAbsoluteAtLeastOneSegment<T extends string> =
     : T extends `${DoubleSlash}${infer _R}`
       ? never
       : PathAbsolute<T>;
+
+export type PathRelativeNoScheme<T extends string> =
+  T extends `${PathCharNoColon}${infer Rest}` ? PathAbsolute<Rest> : never;
+
+export type PathRelativeRootless<T extends string> =
+  T extends `${PathChar}${infer Rest}` ? PathAbsolute<Rest> : never;
 
 export type QueryLike = `?${string}`;
 export type PortLike = `${string}`;
