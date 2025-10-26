@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { DecOctet, Hex16Bits } from "./aliases";
-import type { Decrement, Increment } from "./utils";
+import type {
+  Decrement,
+  ExtractAfterLast,
+  ExtractUntilLast,
+  Increment,
+} from "./utils";
 
 export type IPv4<T extends string> =
   T extends `${infer Octet1}.${infer Octet2}.${infer Octet3}.${infer Octet4}`
@@ -134,44 +139,3 @@ type _ = IPv6<"::0000:0000:0000:0000:0000127.0.0.1">; // ":" should separate IPv
 type _ = IPv6<"::0000:0000:0000:0000:0000:0000:0000:127.0.0.1">; // should not allow 7 Hex16 if it has IPv4
 type _ = IPv6<"::0000:0000:0000:0000:0000:0000:0000:0000:0000:0000">; // should not allow 9 Hex16
 // End IPv6 Tests -------------------------------------------------------------------
-
-type ExtractUntilLast<
-  T extends string,
-  C extends string,
-  Start = true,
-> = T extends `${infer Prefix}${C}${infer Suffix}`
-  ? `${Prefix}${C}${ExtractUntilLast<Suffix, C, false>}`
-  : Start extends true
-    ? never
-    : "";
-
-type ExtractAfterLast<
-  T extends string,
-  C extends string,
-  Start = true,
-> = T extends `${infer _}${C}${infer Suffix}`
-  ? ExtractAfterLast<Suffix, C, false>
-  : Start extends true
-    ? never
-    : T;
-
-type _ = ExtractUntilLast<"::0000:0000:0000:0000:0000:0000:127.0.0.1", ":">;
-type _ = ExtractUntilLast<"0000", ":">;
-type _ = ExtractAfterLast<"::0000:0000:0000:0000:0000:0000:127.0.0.1", ":">;
-type _ = ExtractAfterLast<"0000", ":">;
-
-type _ = IPv6<"::0000:0000:0000:0000:0000:0000:127.0.0.1">;
-type _ = "0000:0000" extends `${infer H16}${infer Rest}` ? Rest : never;
-
-type _ = "0:0000" extends `${H<infer Rest>}${Hex16Bits<infer _>}`
-  ? true
-  : false;
-
-type _ = "0000:0000" extends `${infer U}${Hex16Bits<infer _>}` ? true : false;
-
-type _ =
-  "0000:0000" extends `${NToMHex16<infer H16, 7>}${Hex16Bits<infer H16_Final>}`
-    ? true
-    : false;
-type _ = "0000" extends `${Hex16Bits<infer H16>}` ? true : false;
-type _ = "0000:" extends NToMHex16<infer H16, 7> ? true : false;
