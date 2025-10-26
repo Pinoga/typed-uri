@@ -1,3 +1,5 @@
+import type { Decrement } from "./utils";
+
 export type Letter =
   | "a"
   | "b"
@@ -95,7 +97,6 @@ export type HexDigit =
   | "F"
   | Digit;
 
-type Decrement = [never, 0, 1, 2];
 export type Hex16Bits<
   T extends string,
   Acc extends number = 3,
