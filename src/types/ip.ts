@@ -84,38 +84,91 @@ type NHex16<T extends string, N extends number> = N extends 0
         : never
       : never;
 
-export type IPv6<T extends string> = T extends `${infer Left}::${infer Right}`
-  ? Left extends ""
-    ? ExtractAfterLast<Right, ":"> extends IPv4<infer _>
-      ? ExtractUntilLast<Right, ":"> extends NToMHex16<infer _, 1, 6>
-        ? T
-        : never
-      : `${Right}:` extends NToMHex16<infer _, 1, 8>
-        ? T
-        : never
-    : 1
-  : T extends `${infer H16_1}:${infer H16_2}:${infer H16_3}:${infer H16_4}:${infer H16_5}:${infer H16_6}:${infer H32}`
-    ? Hex32<H32> extends never
-      ? never
-      : H16_1 extends Hex16Bits<H16_1>
-        ? H16_2 extends Hex16Bits<H16_2>
-          ? H16_3 extends Hex16Bits<H16_3>
-            ? H16_4 extends Hex16Bits<H16_4>
-              ? H16_5 extends Hex16Bits<H16_5>
-                ? H16_6 extends Hex16Bits<H16_6>
+/**
+ * https://datatracker.ietf.org/doc/html/rfc3986#appendix-A
+ *
+ * IPv6address
+ */
+export type IPv6<T extends string> =
+  ExtractAfterLast<T, ":"> extends IPv4<infer _>
+    ? ExtractUntilLast<T, ":"> extends infer WithoutIPv4
+      ? WithoutIPv4 extends `${infer Left}::${infer Right}`
+        ? Left extends ""
+          ? Right extends ""
+            ? T
+            : Right extends NToMHex16<infer _, 1, 5>
+              ? T
+              : never
+          : Left extends Hex16Bits<infer _>
+            ? Right extends NToMHex16<infer _, 4, 4>
+              ? T
+              : never
+            : Left extends NToMHex16<infer _, 1, 2>
+              ? Right extends NToMHex16<infer _, 3, 3>
+                ? T
+                : never
+              : Left extends NToMHex16<infer _, 1, 3>
+                ? Right extends NToMHex16<infer _, 2, 2>
                   ? T
                   : never
-                : never
-              : never
-            : never
+                : Left extends NToMHex16<infer _, 1, 4>
+                  ? Right extends NToMHex16<infer _, 1, 1>
+                    ? T
+                    : never
+                  : Left extends NToMHex16<infer _, 1, 5>
+                    ? Right extends ""
+                      ? T
+                      : never
+                    : never // No possibilities "left" for Left
+        : WithoutIPv4 extends NToMHex16<infer _, 6, 6>
+          ? T
           : never
-        : never
-    : never;
+      : never // This should never happen
+    : // There's no IPv4
+      T extends `${infer Left}::${infer Right}`
+      ? Left extends ""
+        ? Right extends ""
+          ? T
+          : `${Right}:` extends NToMHex16<infer _, 1, 7>
+            ? T // "::" *7( h16 ":" )
+            : never
+        : Left extends Hex16Bits<infer _>
+          ? `${Right}:` extends NToMHex16<infer _, 6, 6>
+            ? T
+            : never
+          : Left extends NToMHex16<infer _, 1, 2>
+            ? `${Right}:` extends NToMHex16<infer _, 5, 5>
+              ? T
+              : never
+            : Left extends NToMHex16<infer _, 1, 3>
+              ? `${Right}:` extends NToMHex16<infer _, 4, 4>
+                ? T
+                : never
+              : Left extends NToMHex16<infer _, 1, 4>
+                ? `${Right}:` extends NToMHex16<infer _, 3, 3>
+                  ? T
+                  : never
+                : Left extends NToMHex16<infer _, 1, 5>
+                  ? `${Right}:` extends NToMHex16<infer _, 2, 2>
+                    ? T
+                    : never
+                  : Left extends NToMHex16<infer _, 1, 6>
+                    ? Right extends Hex16Bits<infer _>
+                      ? T
+                      : never
+                    : Left extends NToMHex16<infer _, 1, 7>
+                      ? Right extends ""
+                        ? T
+                        : never
+                      : never // No possibilities "left" for Left
+      : `${T}:` extends NToMHex16<infer _, 8, 8>
+        ? T
+        : never;
 
 // IPv6 Tests -----------------------------------------------------------------------
 // OK
-type _ = IPv6<"::0000:0000:0000:0000:0000:0000:127.0.0.1">; // 6( h16 ":" ) ls32
-type _ = IPv6<"::0000:0000:0000:0000:0000:0000:0000:0000">; // 6( h16 ":" ) ls32
+type _ = IPv6<"0000:0000:0000:0000:0000:0000:127.0.0.1">; // 6( h16 ":" ) ls32
+type _ = IPv6<"0000:0000:0000:0000:0000:0000:0000:0000">; // 6( h16 ":" ) ls32
 type _ = IPv6<"::0000:0000:0000:0000:0000:127.0.0.1">; // 5( h16 ":" ) ls32
 type _ = IPv6<"::0000:0000:0000:0000:0000:0000:0000">; // 5( h16 ":" ) ls32
 type _ = IPv6<"::0000:0000:0000:0000:127.0.0.1">; // 4( h16 ":" ) ls32
