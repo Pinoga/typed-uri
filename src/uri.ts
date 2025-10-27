@@ -27,7 +27,7 @@ import type {
   Slash,
   Tilde,
   Underscore,
-} from "./types/aliases";
+} from "./aliases";
 
 export type GenericDelimiter =
   | Colon
