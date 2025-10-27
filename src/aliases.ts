@@ -97,6 +97,48 @@ export type HexDigit =
   | "F"
   | Digit;
 
+export type GenericDelimiter =
+  | Colon
+  | Slash
+  | QuestionMark
+  | NumberSign
+  | LeftSquareBracket
+  | RightSquareBracket
+  | AtSign;
+
+export type SubDelimiter =
+  | ExclamationMark
+  | DollarSign
+  | AtSign
+  | SingleQuote
+  | LeftParenthesis
+  | RightParenthesis
+  | Asterisk
+  | PlusSign
+  | Comma
+  | SemiColon
+  | EqualSign;
+
+export type Unreserved = Letter | Digit | Hyphen | Dot | Underscore | Tilde;
+export type Reserved = GenericDelimiter | SubDelimiter;
+
+export type PercentEncoded = `${Percent}${HexDigit}${HexDigit}`;
+
+export type UserInfoChar = Unreserved | PercentEncoded | SubDelimiter | Colon;
+
+export type PathChar =
+  | Unreserved
+  | PercentEncoded
+  | SubDelimiter
+  | Colon
+  | AtSign;
+
+export type PathCharNoColon = Exclude<PathChar, ":">;
+
+export type QueryChar = PathChar | Slash | QuestionMark;
+
+export type FragmentChar = QueryChar;
+
 export type Hex16Bits<
   T extends string,
   Acc extends number = 3,

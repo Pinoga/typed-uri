@@ -1,75 +1,15 @@
 import type {
-  Asterisk,
-  AtSign,
-  Colon,
-  Comma,
   Digit,
-  DollarSign,
   Dot,
   DoubleSlash,
   Empty,
-  EqualSign,
-  ExclamationMark,
-  HexDigit,
   Hyphen,
-  LeftParenthesis,
-  LeftSquareBracket,
   Letter,
-  NumberSign,
-  Percent,
+  PathChar,
+  PathCharNoColon,
   Plus,
-  PlusSign,
-  QuestionMark,
-  RightParenthesis,
-  RightSquareBracket,
-  SemiColon,
-  SingleQuote,
   Slash,
-  Tilde,
-  Underscore,
 } from "./aliases";
-
-export type GenericDelimiter =
-  | Colon
-  | Slash
-  | QuestionMark
-  | NumberSign
-  | LeftSquareBracket
-  | RightSquareBracket
-  | AtSign;
-
-export type SubDelimiter =
-  | ExclamationMark
-  | DollarSign
-  | AtSign
-  | SingleQuote
-  | LeftParenthesis
-  | RightParenthesis
-  | Asterisk
-  | PlusSign
-  | Comma
-  | SemiColon
-  | EqualSign;
-
-export type Unreserved = Letter | Digit | Hyphen | Dot | Underscore | Tilde;
-export type Reserved = GenericDelimiter | SubDelimiter;
-
-export type PercentEncoded = `${Percent}${HexDigit}${HexDigit}`;
-
-export type UserInfoChar = Unreserved | PercentEncoded | SubDelimiter | Colon;
-
-export type PathChar =
-  | Unreserved
-  | PercentEncoded
-  | SubDelimiter
-  | Colon
-  | AtSign;
-
-export type PathCharNoColon = Exclude<PathChar, ":">;
-
-export type QueryChar = PathChar | Slash | QuestionMark;
-
-export type FragmentChar = QueryChar;
 
 export type SchemeRest<T extends string> = T extends
   | Letter

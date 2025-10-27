@@ -1,5 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type { DecOctet, Hex16Bits } from "./aliases";
+import type {
+  Colon,
+  DecOctet,
+  Hex16Bits,
+  HexDigit,
+  SubDelimiter,
+  Unreserved,
+} from "./aliases";
 import type {
   Decrement,
   ExtractAfterLast,
@@ -20,14 +27,36 @@ export type IPv4<T extends string> =
       : never
     : never;
 
-type Hex32<T extends string> =
-  T extends `${Hex16Bits<infer H16_1>}:${Hex16Bits<infer H16_2>}`
-    ? T
-    : T extends IPv4<T>
+type RepetitionOf<
+  T extends string,
+  Char extends string,
+> = T extends `${infer Prefix}${Char}${infer Suffix}`
+  ? Suffix extends ""
+    ? Prefix extends ""
       ? T
-      : never;
+      : RepetitionOf<Prefix, Char> extends never
+        ? never
+        : T
+    : Prefix extends ""
+      ? RepetitionOf<Suffix, Char> extends never
+        ? never
+        : T
+      : RepetitionOf<Suffix, Char> extends never
+        ? RepetitionOf<Prefix, Char> extends never
+          ? T
+          : never
+        : never
+  : never;
 
-type Hex16AndColon<T extends string> = `${Hex16Bits<T>}:`;
+// RepetitionOf Tests
+// OK
+type _ = RepetitionOf<"", "P">;
+type _ = RepetitionOf<"P", "P">;
+type _ = RepetitionOf<"PPP", "P">;
+
+// FAIL
+type _ = RepetitionOf<"PPPG", "P">;
+type _ = RepetitionOf<"PPPGP", "P">;
 
 type NToMHex16<
   T extends string,
@@ -71,18 +100,6 @@ type _ = NToMHex16<"0000:0000:0000", 2, 3>;
 type _ = NToMHex16<"0000:0000:0000:", 0, 3>;
 type _ = NToMHex16<"0000:0000:0000:", 1, 3>;
 type _ = NToMHex16<"0000:0000:0000:", 2, 3>;
-
-type NHex16<T extends string, N extends number> = N extends 0
-  ? never
-  : N extends 1
-    ? T extends `${Hex16Bits<infer _S>}`
-      ? T
-      : never
-    : T extends `${Hex16Bits<infer _S>}:${infer Rest}`
-      ? Rest extends NHex16<Rest, Decrement[N]>
-        ? T
-        : never
-      : never;
 
 /**
  * https://datatracker.ietf.org/doc/html/rfc3986#appendix-A
@@ -207,3 +224,20 @@ type _ = IPv6<"::0000:0000:0000:0000:0000127.0.0.1">; // ":" should separate IPv
 type _ = IPv6<"::0000:0000:0000:0000:0000:0000:0000:127.0.0.1">; // should not allow 7 Hex16 if it has IPv4
 type _ = IPv6<"::0000:0000:0000:0000:0000:0000:0000:0000:0000:0000">; // should not allow 9 Hex16
 // End IPv6 Tests -------------------------------------------------------------------
+
+export type IPvFuture<T extends string> =
+  T extends `v${RepetitionOf<infer _, HexDigit>}.${RepetitionOf<infer _, Unreserved | SubDelimiter | Colon>}`
+    ? T
+    : never;
+
+// OK
+type _ = IPvFuture<"v1.:">;
+type _ = IPvFuture<"v1.:@">;
+type _ = IPvFuture<"v1.:@9">;
+type _ = IPvFuture<"v1F.:@9">;
+type _ = IPvFuture<"v1Fa9.:@9">;
+
+// FAIL
+type _ = IPvFuture<"">;
+type _ = IPvFuture<"v1G.:@9">;
+type _ = IPvFuture<"v1Fa9:@9">;
