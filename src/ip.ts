@@ -12,6 +12,7 @@ import type {
   ExtractAfterLast,
   ExtractUntilLast,
   Increment,
+  RepetitionOf,
 } from "./utils";
 
 export type IPv4<T extends string> =
@@ -26,27 +27,6 @@ export type IPv4<T extends string> =
         : never
       : never
     : never;
-
-type RepetitionOf<
-  T extends string,
-  Char extends string,
-> = T extends `${infer Prefix}${Char}${infer Suffix}`
-  ? Suffix extends ""
-    ? Prefix extends ""
-      ? T
-      : RepetitionOf<Prefix, Char> extends never
-        ? never
-        : T
-    : Prefix extends ""
-      ? RepetitionOf<Suffix, Char> extends never
-        ? never
-        : T
-      : RepetitionOf<Suffix, Char> extends never
-        ? RepetitionOf<Prefix, Char> extends never
-          ? T
-          : never
-        : never
-  : never;
 
 // RepetitionOf Tests
 // OK
@@ -241,3 +221,16 @@ type _ = IPvFuture<"v1Fa9.:@9">;
 type _ = IPvFuture<"">;
 type _ = IPvFuture<"v1G.:@9">;
 type _ = IPvFuture<"v1Fa9:@9">;
+
+export type IPLiteral<T extends string> =
+  T extends `[${IPv6<infer _> | IPvFuture<infer _>}]` ? T : never;
+
+// OK
+type _ = IPLiteral<"[::127.0.0.1]">;
+type _ = IPLiteral<"[v1Fa9.:@9]">;
+
+// FAIL
+type _ = IPLiteral<"::127.0.0.1">;
+type _ = IPLiteral<"[]">;
+type _ = IPLiteral<"[127.0.0.1]">;
+type _ = IPLiteral<"[v1Fa9:@9]">;

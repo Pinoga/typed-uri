@@ -1,4 +1,4 @@
-import type { Decrement } from "./utils";
+import type { Decrement, RepetitionOf } from "./utils";
 
 export type Letter =
   | "a"
@@ -158,3 +158,6 @@ export type DecOctet =
   | `1${Digit}${Digit}`
   | `2${"0" | "1" | "2" | "3" | "4"}${Digit}`
   | `25${"0" | "1" | "2" | "3" | "4" | "5"}`;
+
+export type Port<T extends string> =
+  T extends RepetitionOf<T, Digit> ? T : never;

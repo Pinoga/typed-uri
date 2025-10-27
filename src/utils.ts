@@ -23,5 +23,26 @@ export type ExtractAfterLast<
     ? never
     : T;
 
+export type RepetitionOf<
+  T extends string,
+  Char extends string,
+> = T extends `${infer Prefix}${Char}${infer Suffix}`
+  ? Suffix extends ""
+    ? Prefix extends ""
+      ? T
+      : RepetitionOf<Prefix, Char> extends never
+        ? never
+        : T
+    : Prefix extends ""
+      ? RepetitionOf<Suffix, Char> extends never
+        ? never
+        : T
+      : RepetitionOf<Suffix, Char> extends never
+        ? RepetitionOf<Prefix, Char> extends never
+          ? T
+          : never
+        : never
+  : never;
+
 type _ = ExtractAfterLast<"::0000:0000:0000:0000:0000:0000:127.0.0.1", ":">;
 type _ = ExtractAfterLast<"0000", ":">;
