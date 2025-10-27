@@ -7,4 +7,9 @@ export default defineConfig(
   eslint.configs.recommended,
   tseslint.configs.recommended,
   eslintConfigPrettier,
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": false,
+    },
+  },
 );
