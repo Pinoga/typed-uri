@@ -7,15 +7,14 @@ import type {
   SubDelimiter,
   Unreserved,
 } from "./aliases";
-import type {
-  _,
-  Decrement,
-  ExtractAfterLast,
-  ExtractUntilLast,
+import {
   Fail,
-  Increment,
   Ok,
-  RepetitionOf,
+  type Decrement,
+  type ExtractAfterLast,
+  type ExtractUntilLast,
+  type Increment,
+  type RepetitionOf,
 } from "./utils";
 
 export type IPv4<T extends string> =
@@ -31,11 +30,11 @@ export type IPv4<T extends string> =
       : never
     : never;
 
-"" as Ok<_<RepetitionOf<"", "P">>>;
-"" as Ok<_<RepetitionOf<"P", "P">>>;
-"" as Ok<_<RepetitionOf<"PPP", "P">>>;
-"" as Fail<_<RepetitionOf<"PPPG", "P">>>;
-"" as Fail<_<RepetitionOf<"PPPGP", "P">>>;
+Ok satisfies RepetitionOf<"", "P">;
+Ok satisfies RepetitionOf<"P", "P">;
+Ok satisfies RepetitionOf<"PPP", "P">;
+Fail satisfies RepetitionOf<"PPPG", "P">;
+Fail satisfies RepetitionOf<"PPPGP", "P">;
 
 type NToMHex16<
   T extends string,
@@ -65,20 +64,20 @@ type NToMHex16<
         : never
       : never;
 
-"" as Ok<_<NToMHex16<"", 0, 1>>>;
-"" as Ok<_<NToMHex16<"", 0, 2>>>;
-"" as Ok<_<NToMHex16<"", 1, 1>>>;
-"" as Ok<_<NToMHex16<"0000:", 0, 1>>>;
-"" as Ok<_<NToMHex16<"0000:", 1, 1>>>;
-"" as Ok<_<NToMHex16<"0000:", 1, 2>>>;
-"" as Ok<_<NToMHex16<"0000:0000:", 1, 1>>>;
-"" as Ok<_<NToMHex16<"0000:0000:", 1, 2>>>;
-"" as Ok<_<NToMHex16<"0000:0000:", 2, 2>>>;
-"" as Ok<_<NToMHex16<"0000:0000:0000", 2, 2>>>;
-"" as Ok<_<NToMHex16<"0000:0000:0000", 2, 3>>>;
-"" as Ok<_<NToMHex16<"0000:0000:0000:", 0, 3>>>;
-"" as Ok<_<NToMHex16<"0000:0000:0000:", 1, 3>>>;
-"" as Ok<_<NToMHex16<"0000:0000:0000:", 2, 3>>>;
+Ok satisfies NToMHex16<"", 0, 1>;
+Ok satisfies NToMHex16<"", 0, 2>;
+Ok satisfies NToMHex16<"", 1, 1>;
+Ok satisfies NToMHex16<"0000:", 0, 1>;
+Ok satisfies NToMHex16<"0000:", 1, 1>;
+Ok satisfies NToMHex16<"0000:", 1, 2>;
+Ok satisfies NToMHex16<"0000:0000:", 1, 1>;
+Ok satisfies NToMHex16<"0000:0000:", 1, 2>;
+Ok satisfies NToMHex16<"0000:0000:", 2, 2>;
+Ok satisfies NToMHex16<"0000:0000:0000", 2, 2>;
+Ok satisfies NToMHex16<"0000:0000:0000", 2, 3>;
+Ok satisfies NToMHex16<"0000:0000:0000:", 0, 3>;
+Ok satisfies NToMHex16<"0000:0000:0000:", 1, 3>;
+Ok satisfies NToMHex16<"0000:0000:0000:", 2, 3>;
 
 /**
  * https://datatracker.ietf.org/doc/html/rfc3986#appendix-A
@@ -159,45 +158,45 @@ export type IPv6<T extends string> =
 
 // IPv6 Tests -----------------------------------------------------------------------
 // OK
-"" as Ok<_<IPv6<"0000:0000:0000:0000:0000:0000:127.0.0.1">>>; // 6( h16 ":" ) ls32
-"" as Ok<_<IPv6<"0000:0000:0000:0000:0000:0000:0000:0000">>>; // 6( h16 ":" ) ls32
-"" as Ok<_<IPv6<"::0000:0000:0000:0000:0000:127.0.0.1">>>; // 5( h16 ":" ) ls32
-"" as Ok<_<IPv6<"::0000:0000:0000:0000:0000:0000:0000">>>; // 5( h16 ":" ) ls32
-"" as Ok<_<IPv6<"::0000:0000:0000:0000:127.0.0.1">>>; // 4( h16 ":" ) ls32
-"" as Ok<_<IPv6<"::0000:0000:0000:0000:0000:0000">>>; // 4( h16 ":" ) ls32
-"" as Ok<_<IPv6<"::0000:0000:0000:127.0.0.1">>>; // 3( h16 ":" ) ls32
-"" as Ok<_<IPv6<"::0000:0000:0000:0000:0000">>>; // 3( h16 ":" ) ls32
-"" as Ok<_<IPv6<"::0000:0000:127.0.0.1">>>; // 2( h16 ":" ) ls32
-"" as Ok<_<IPv6<"::0000:0000:0000:0000">>>; // 2( h16 ":" ) ls32
-"" as Ok<_<IPv6<"::0000:0000:0000">>>; // h16 ":" ls32
-"" as Ok<_<IPv6<"::0000:127.0.0.1">>>; // h16 ":" ls32
-"" as Ok<_<IPv6<"::0000:0000">>>; // ls32
-"" as Ok<_<IPv6<"::127.0.0.1">>>; // ls32
-"" as Ok<_<IPv6<"::">>>; //
-"" as Ok<_<IPv6<"0000::0000:0000:0000:0000:127.0.0.1">>>; // h16 "::" 4( h16 ":" ) ls32
-"" as Ok<_<IPv6<"0000::0000:0000:0000:0000:0000:0000">>>; // h16 "::" 4( h16 ":" ) ls32
-"" as Ok<_<IPv6<"0000::0000:0000:0000:127.0.0.1">>>; // h16 "::" 3( h16 ":" ) ls32
-"" as Ok<_<IPv6<"0000::0000:0000:0000:0000:0000">>>; // h16 "::" 3( h16 ":" ) ls32
-"" as Ok<_<IPv6<"0000:0000::0000:0000:0000:127.0.0.1">>>; // 1( h16 ":") h16 "::" 3( h16 ":" ) ls32
-"" as Ok<_<IPv6<"0000:0000::0000:0000:0000:0000:0000">>>; // 1( h16 ":") h16 "::" 3( h16 ":" ) ls32
-"" as Ok<_<IPv6<"::0000:0000:0000:127.0.0.1">>>; // 3( h16 ":" ) ls32
-"" as Ok<_<IPv6<"::0000:0000:0000:0000:0000">>>; // 3( h16 ":" ) ls32
-"" as Ok<_<IPv6<"::0000:0000:127.0.0.1">>>; // 2( h16 ":" ) ls32
-"" as Ok<_<IPv6<"::0000:0000:0000:0000">>>; // 2( h16 ":" ) ls32
-"" as Ok<_<IPv6<"::0000:0000:0000">>>; // h16 ":" ls32
-"" as Ok<_<IPv6<"::0000:127.0.0.1">>>; // h16 ":" ls32
-"" as Ok<_<IPv6<"::0000:0000">>>; // ls32
-"" as Ok<_<IPv6<"::127.0.0.1">>>; // ls32
-"" as Ok<_<IPv6<"::">>>; //
+Ok satisfies IPv6<"0000:0000:0000:0000:0000:0000:127.0.0.1">; // 6( h16 ":" ) ls32
+Ok satisfies IPv6<"0000:0000:0000:0000:0000:0000:0000:0000">; // 6( h16 ":" ) ls32
+Ok satisfies IPv6<"::0000:0000:0000:0000:0000:127.0.0.1">; // 5( h16 ":" ) ls32
+Ok satisfies IPv6<"::0000:0000:0000:0000:0000:0000:0000">; // 5( h16 ":" ) ls32
+Ok satisfies IPv6<"::0000:0000:0000:0000:127.0.0.1">; // 4( h16 ":" ) ls32
+Ok satisfies IPv6<"::0000:0000:0000:0000:0000:0000">; // 4( h16 ":" ) ls32
+Ok satisfies IPv6<"::0000:0000:0000:127.0.0.1">; // 3( h16 ":" ) ls32
+Ok satisfies IPv6<"::0000:0000:0000:0000:0000">; // 3( h16 ":" ) ls32
+Ok satisfies IPv6<"::0000:0000:127.0.0.1">; // 2( h16 ":" ) ls32
+Ok satisfies IPv6<"::0000:0000:0000:0000">; // 2( h16 ":" ) ls32
+Ok satisfies IPv6<"::0000:0000:0000">; // h16 ":" ls32
+Ok satisfies IPv6<"::0000:127.0.0.1">; // h16 ":" ls32
+Ok satisfies IPv6<"::0000:0000">; // ls32
+Ok satisfies IPv6<"::127.0.0.1">; // ls32
+Ok satisfies IPv6<"::">; //
+Ok satisfies IPv6<"0000::0000:0000:0000:0000:127.0.0.1">; // h16 "::" 4( h16 ":" ) ls32
+Ok satisfies IPv6<"0000::0000:0000:0000:0000:0000:0000">; // h16 "::" 4( h16 ":" ) ls32
+Ok satisfies IPv6<"0000::0000:0000:0000:127.0.0.1">; // h16 "::" 3( h16 ":" ) ls32
+Ok satisfies IPv6<"0000::0000:0000:0000:0000:0000">; // h16 "::" 3( h16 ":" ) ls32
+Ok satisfies IPv6<"0000:0000::0000:0000:0000:127.0.0.1">; // 1( h16 ":") h16 "::" 3( h16 ":" ) ls32
+Ok satisfies IPv6<"0000:0000::0000:0000:0000:0000:0000">; // 1( h16 ":") h16 "::" 3( h16 ":" ) ls32
+Ok satisfies IPv6<"::0000:0000:0000:127.0.0.1">; // 3( h16 ":" ) ls32
+Ok satisfies IPv6<"::0000:0000:0000:0000:0000">; // 3( h16 ":" ) ls32
+Ok satisfies IPv6<"::0000:0000:127.0.0.1">; // 2( h16 ":" ) ls32
+Ok satisfies IPv6<"::0000:0000:0000:0000">; // 2( h16 ":" ) ls32
+Ok satisfies IPv6<"::0000:0000:0000">; // h16 ":" ls32
+Ok satisfies IPv6<"::0000:127.0.0.1">; // h16 ":" ls32
+Ok satisfies IPv6<"::0000:0000">; // ls32
+Ok satisfies IPv6<"::127.0.0.1">; // ls32
+Ok satisfies IPv6<"::">; //
 // FAIL
-"" as Fail<_<IPv6<":">>>;
-"" as Fail<_<IPv6<":::">>>;
-"" as Fail<_<IPv6<"">>>;
-"" as Fail<_<IPv6<"127.0.0.1">>>; // should not accept IPv4
-"" as Fail<_<IPv6<"::0000:0000:0000:0000:0000:">>>; // should not end with ":"
-"" as Fail<_<IPv6<"::0000:0000:0000:0000:0000127.0.0.1">>>; // ":" should separate IPv6 from IPv4
-"" as Fail<_<IPv6<"::0000:0000:0000:0000:0000:0000:0000:127.0.0.1">>>; // should not allow 7 Hex16 if it has IPv4
-"" as Fail<_<IPv6<"::0000:0000:0000:0000:0000:0000:0000:0000:0000:0000">>>; // should not allow 9 Hex16
+Fail satisfies IPv6<":">;
+Fail satisfies IPv6<":::">;
+Fail satisfies IPv6<"">;
+Fail satisfies IPv6<"127.0.0.1">; // should not accept IPv4
+Fail satisfies IPv6<"::0000:0000:0000:0000:0000:">; // should not end with ":"
+Fail satisfies IPv6<"::0000:0000:0000:0000:0000127.0.0.1">; // ":" should separate IPv6 from IPv4
+Fail satisfies IPv6<"::0000:0000:0000:0000:0000:0000:0000:127.0.0.1">; // should not allow 7 Hex16 if it has IPv4
+Fail satisfies IPv6<"::0000:0000:0000:0000:0000:0000:0000:0000:0000:0000">; // should not allow 9 Hex16
 // End IPv6 Tests -------------------------------------------------------------------
 
 export type IPvFuture<T extends string> =
@@ -205,14 +204,14 @@ export type IPvFuture<T extends string> =
     ? T
     : never;
 
-"" as Ok<_<IPvFuture<"v1.:">>>;
-"" as Ok<_<IPvFuture<"v1.:@">>>;
-"" as Ok<_<IPvFuture<"v1.:@9">>>;
-"" as Ok<_<IPvFuture<"v1F.:@9">>>;
-"" as Ok<_<IPvFuture<"v1Fa9.:@9">>>;
-"" as Fail<_<IPvFuture<"">>>;
-"" as Fail<_<IPvFuture<"v1G.:@9">>>;
-"" as Fail<_<IPvFuture<"v1Fa9:@9">>>;
+Ok satisfies IPvFuture<"v1.:">;
+Ok satisfies IPvFuture<"v1.:@">;
+Ok satisfies IPvFuture<"v1.:@9">;
+Ok satisfies IPvFuture<"v1F.:@9">;
+Ok satisfies IPvFuture<"v1Fa9.:@9">;
+Fail satisfies IPvFuture<"">;
+Fail satisfies IPvFuture<"v1G.:@9">;
+Fail satisfies IPvFuture<"v1Fa9:@9">;
 
 export type IPLiteral<T extends string> = T extends `[${infer IP}]`
   ? IP extends IPv6<IP>
@@ -222,10 +221,10 @@ export type IPLiteral<T extends string> = T extends `[${infer IP}]`
       : never
   : never;
 
-"" as Ok<_<IPLiteral<"[::127.0.0.1]">>>;
-"" as Ok<_<IPLiteral<"[0000:0000::0000:0000:0000:127.0.0.1]">>>; //FIXME
-"" as Ok<_<IPLiteral<"[v1Fa9.:@9]">>>;
-"" as Fail<_<IPLiteral<"::127.0.0.1">>>;
-"" as Fail<_<IPLiteral<"[]">>>;
-"" as Fail<_<IPLiteral<"[127.0.0.1]">>>;
-"" as Fail<_<IPLiteral<"[v1Fa9:@9]">>>;
+Ok satisfies IPLiteral<"[::127.0.0.1]">;
+Ok satisfies IPLiteral<"[0000:0000::0000:0000:0000:127.0.0.1]">; //FIXME
+Ok satisfies IPLiteral<"[v1Fa9.:@9]">;
+Fail satisfies IPLiteral<"::127.0.0.1">;
+Fail satisfies IPLiteral<"[]">;
+Fail satisfies IPLiteral<"[127.0.0.1]">;
+Fail satisfies IPLiteral<"[v1Fa9:@9]">;
