@@ -61,3 +61,14 @@ export type Authority<T extends string> =
       : T extends Host<T>
         ? T
         : never;
+
+type _ = Authority<"">; // empty reg-name
+type _ = Authority<"%De">; // reg-name with percent-encoded
+type _ = Authority<"%De%0F%f0">; // reg-name with multiple percent-encoded
+type _ = Authority<"1%De0-%0F-(%f0">; // reg-name with multiple percent-encoded, unreserved, sub-delimiters
+type _ = Authority<"1000">; // reg-name with multiple unreserved
+type _ = Authority<"@)@(@!">; // reg-name with multiple sub delimiter
+type _ = Authority<"127.0.0.1">; // host with ipv4
+type _ = Authority<"[v1Fa9.:@9]">; // host with ip literal (ipvfuture) FIXME
+type _ = Authority<"[::127.0.0.1]">; // host with ip literal (ipv6)
+type _ = Authority<"[0000:0000::0000:0000:0000:127.0.0.1]">; // host with ip literal (ipv6)

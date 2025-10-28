@@ -90,30 +90,28 @@ export type IPv6<T extends string> =
   ExtractAfterLast<T, ":"> extends IPv4<infer _>
     ? ExtractUntilLast<T, ":"> extends infer WithoutIPv4
       ? WithoutIPv4 extends `${infer Left}::${infer Right}`
-        ? Left extends ""
-          ? Right extends ""
+        ? Right extends ""
+          ? Left extends NToMHex16<infer _, 0, 5>
             ? T
-            : Right extends NToMHex16<infer _, 1, 5>
+            : never
+          : Left extends ""
+            ? Right extends NToMHex16<infer _, 1, 5>
               ? T
               : never
-          : Left extends Hex16Bits<infer _>
-            ? Right extends NToMHex16<infer _, 4, 4>
-              ? T
-              : never
-            : Left extends NToMHex16<infer _, 1, 2>
-              ? Right extends NToMHex16<infer _, 3, 3>
+            : Left extends Hex16Bits<infer _>
+              ? Right extends NToMHex16<infer _, 1, 4>
                 ? T
                 : never
-              : Left extends NToMHex16<infer _, 1, 3>
-                ? Right extends NToMHex16<infer _, 2, 2>
+              : `${Left}:` extends NToMHex16<infer _, 2, 2>
+                ? Right extends NToMHex16<infer _, 1, 3>
                   ? T
                   : never
-                : Left extends NToMHex16<infer _, 1, 4>
-                  ? Right extends NToMHex16<infer _, 1, 1>
+                : `${Left}:` extends NToMHex16<infer _, 3, 3>
+                  ? Right extends NToMHex16<infer _, 1, 2>
                     ? T
                     : never
-                  : Left extends NToMHex16<infer _, 1, 5>
-                    ? Right extends ""
+                  : `${Left}:` extends NToMHex16<infer _, 4, 4>
+                    ? Right extends NToMHex16<infer _, 1, 1>
                       ? T
                       : never
                     : never // No possibilities "left" for Left
@@ -123,38 +121,36 @@ export type IPv6<T extends string> =
       : never // This should never happen
     : // There's no IPv4
       T extends `${infer Left}::${infer Right}`
-      ? Left extends ""
-        ? Right extends ""
+      ? Right extends ""
+        ? Left extends NToMHex16<infer _, 0, 7>
           ? T
-          : `${Right}:` extends NToMHex16<infer _, 1, 7>
+          : never
+        : Left extends ""
+          ? `${Right}:` extends NToMHex16<infer _, 1, 7>
             ? T // "::" *7( h16 ":" )
             : never
-        : Left extends Hex16Bits<infer _>
-          ? `${Right}:` extends NToMHex16<infer _, 6, 6>
-            ? T
-            : never
-          : Left extends NToMHex16<infer _, 1, 2>
-            ? `${Right}:` extends NToMHex16<infer _, 5, 5>
+          : Left extends Hex16Bits<infer _>
+            ? `${Right}:` extends NToMHex16<infer _, 1, 6>
               ? T
               : never
-            : Left extends NToMHex16<infer _, 1, 3>
-              ? `${Right}:` extends NToMHex16<infer _, 4, 4>
+            : `${Left}:` extends NToMHex16<infer _, 2, 2>
+              ? `${Right}:` extends NToMHex16<infer _, 1, 5>
                 ? T
                 : never
-              : Left extends NToMHex16<infer _, 1, 4>
-                ? `${Right}:` extends NToMHex16<infer _, 3, 3>
+              : `${Left}:` extends NToMHex16<infer _, 3, 3>
+                ? `${Right}:` extends NToMHex16<infer _, 1, 4>
                   ? T
                   : never
-                : Left extends NToMHex16<infer _, 1, 5>
-                  ? `${Right}:` extends NToMHex16<infer _, 2, 2>
+                : `${Left}:` extends NToMHex16<infer _, 4, 4>
+                  ? `${Right}:` extends NToMHex16<infer _, 1, 3>
                     ? T
                     : never
-                  : Left extends NToMHex16<infer _, 1, 6>
-                    ? Right extends Hex16Bits<infer _>
+                  : `${Left}:` extends NToMHex16<infer _, 5, 5>
+                    ? `${Right}:` extends NToMHex16<infer _, 1, 2>
                       ? T
                       : never
-                    : Left extends NToMHex16<infer _, 1, 7>
-                      ? Right extends ""
+                    : `${Left}:` extends NToMHex16<infer _, 6, 6>
+                      ? Right extends Hex16Bits<infer _>
                         ? T
                         : never
                       : never // No possibilities "left" for Left
@@ -222,11 +218,18 @@ type _ = IPvFuture<"">;
 type _ = IPvFuture<"v1G.:@9">;
 type _ = IPvFuture<"v1Fa9:@9">;
 
-export type IPLiteral<T extends string> =
-  T extends `[${IPv6<infer _> | IPvFuture<infer _>}]` ? T : never;
+export type IPLiteral<T extends string> = T extends `[${infer IP}]`
+  ? IP extends IPv6<IP>
+    ? T
+    : IP extends IPvFuture<IP>
+      ? T
+      : never
+  : never;
+// T extends `[${IPv6<infer _> | IPvFuture<infer _>}]` ? T : never;
 
 // OK
 type _ = IPLiteral<"[::127.0.0.1]">;
+type _ = IPLiteral<"[0000:0000::0000:0000:0000:127.0.0.1]">; //FIXME
 type _ = IPLiteral<"[v1Fa9.:@9]">;
 
 // FAIL
