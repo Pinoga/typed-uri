@@ -1,3 +1,9 @@
+export const Test: any = "";
+
+export type _<T> = T extends never ? number : string;
+export type Ok<T extends string> = T;
+export type Fail<T extends never> = T;
+
 export type Decrement = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 export type Increment = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, never];
 export type ExtractUntilLast<
@@ -10,8 +16,10 @@ export type ExtractUntilLast<
     ? never
     : "";
 
-type _ = ExtractUntilLast<"::0000:0000:0000:0000:0000:0000:127.0.0.1", ":">;
-type _ = ExtractUntilLast<"0000", ":">;
+Test as Ok<
+  _<ExtractUntilLast<"::0000:0000:0000:0000:0000:0000:127.0.0.1", ":">>
+>;
+Test as Ok<_<ExtractUntilLast<"0000", ":">>>;
 
 export type ExtractAfterLast<
   T extends string,
@@ -44,5 +52,7 @@ export type RepetitionOf<
         : never
   : never;
 
-type _ = ExtractAfterLast<"::0000:0000:0000:0000:0000:0000:127.0.0.1", ":">;
-type _ = ExtractAfterLast<"0000", ":">;
+Test as Ok<
+  _<ExtractAfterLast<"::0000:0000:0000:0000:0000:0000:127.0.0.1", ":">>
+>;
+Test as Ok<_<ExtractAfterLast<"0000", ":">>>;

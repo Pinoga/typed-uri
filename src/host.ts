@@ -7,7 +7,7 @@ import type {
   Unreserved,
 } from "./aliases";
 import type { IPLiteral, IPv4 } from "./ip";
-import type { RepetitionOf } from "./utils";
+import { Test, type _, type Fail, type Ok, type RepetitionOf } from "./utils";
 
 type HostName<T extends string> = T extends ""
   ? T
@@ -22,6 +22,8 @@ export type Host<T extends string> = T extends
   ? T
   : never;
 
+Test as Ok<_<Host<"127.0.0.1">>>;
+Test as Fail<_<Host<"v1Fa9.:@9">>>;
 export type UserInfo<T extends string> = T extends ""
   ? T
   : T extends RepetitionOf<
@@ -62,13 +64,13 @@ export type Authority<T extends string> =
         ? T
         : never;
 
-type _ = Authority<"">; // empty reg-name
-type _ = Authority<"%De">; // reg-name with percent-encoded
-type _ = Authority<"%De%0F%f0">; // reg-name with multiple percent-encoded
-type _ = Authority<"1%De0-%0F-(%f0">; // reg-name with multiple percent-encoded, unreserved, sub-delimiters
-type _ = Authority<"1000">; // reg-name with multiple unreserved
-type _ = Authority<"@)@(@!">; // reg-name with multiple sub delimiter
-type _ = Authority<"127.0.0.1">; // host with ipv4
-type _ = Authority<"[v1Fa9.:@9]">; // host with ip literal (ipvfuture) FIXME
-type _ = Authority<"[::127.0.0.1]">; // host with ip literal (ipv6)
-type _ = Authority<"[0000:0000::0000:0000:0000:127.0.0.1]">; // host with ip literal (ipv6)
+"" as Ok<_<Authority<"">>>; // empty reg-name
+"" as Ok<_<Authority<"%De">>>; // reg-name with percent-encoded
+"" as Ok<_<Authority<"%De%0F%f0">>>; // reg-name with multiple percent-encoded
+"" as Ok<_<Authority<"1%De0-%0F-(%f0">>>; // reg-name with multiple percent-encoded, unreserved, sub-delimiters
+"" as Ok<_<Authority<"1000">>>; // reg-name with multiple unreserved
+"" as Ok<_<Authority<"@)@(@!">>>; // reg-name with multiple sub delimiter
+"" as Ok<_<Authority<"127.0.0.1">>>; // host with ipv4
+"" as Ok<_<Authority<"[v1Fa9.:@9]">>>; // host with ip literal (ipvfuture) FIXME
+"" as Ok<_<Authority<"[::127.0.0.1]">>>; // host with ip literal (ipv6)
+"" as Ok<_<Authority<"[0000:0000::0000:0000:0000:127.0.0.1]">>>; // host with ip literal (ipv6)
