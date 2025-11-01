@@ -71,9 +71,13 @@ Ok satisfies NToMHex16<"0000:0000:0000:", 0, 3>;
 Ok satisfies NToMHex16<"0000:0000:0000:", 1, 3>;
 Ok satisfies NToMHex16<"0000:0000:0000:", 2, 3>;
 
+// @ts-expect-error
 Fail satisfies NToMHex16<"", 1, 1>;
+// @ts-expect-error
 Fail satisfies NToMHex16<"0000:0000:0000", 2, 3>;
+// @ts-expect-error
 Fail satisfies NToMHex16<"0000:0000:0000", 2, 2>;
+// @ts-expect-error
 Fail satisfies NToMHex16<"0000:0000:", 1, 1>;
 
 /**
@@ -185,16 +189,22 @@ Ok satisfies IPv6<"::0000:127.0.0.1">; // h16 ":" ls32
 Ok satisfies IPv6<"::0000:0000">; // ls32
 Ok satisfies IPv6<"::127.0.0.1">; // ls32
 Ok satisfies IPv6<"::">; //
-// FAIL
+// @ts-expect-error
 Fail satisfies IPv6<":">;
+// @ts-expect-error
 Fail satisfies IPv6<":::">;
+// @ts-expect-error
 Fail satisfies IPv6<" ">;
+// @ts-expect-error
 Fail satisfies IPv6<"127.0.0.1">; // should not accept IPv4
+// @ts-expect-error
 Fail satisfies IPv6<"::0000:0000:0000:0000:0000:">; // should not end with ":"
+// @ts-expect-error
 Fail satisfies IPv6<"::0000:0000:0000:0000:0000127.0.0.1">; // ":" should separate IPv6 from IPv4
+// @ts-expect-error
 Fail satisfies IPv6<"::0000:0000:0000:0000:0000:0000:0000:127.0.0.1">; // should not allow 7 Hex16 if it has IPv4
+// @ts-expect-error
 Fail satisfies IPv6<"::0000:0000:0000:0000:0000:0000:0000:0000:0000:0000">; // should not allow 9 Hex16
-// End IPv6 Tests -------------------------------------------------------------------
 
 export type IPvFuture<T extends string> =
   T extends `v${OneOrMore<infer _, HexDigit>}.${OneOrMore<infer _, Unreserved | SubDelimiter | Colon>}`
@@ -204,10 +214,15 @@ export type IPvFuture<T extends string> =
 Ok satisfies IPvFuture<"v1.:">;
 Ok satisfies IPvFuture<"v1.:9">;
 Ok satisfies IPvFuture<"v1Fa9.:9">;
+// @ts-expect-error
 Fail satisfies IPvFuture<"">;
+// @ts-expect-error
 Fail satisfies IPvFuture<"v1G.:@9">;
+// @ts-expect-error
 Fail satisfies IPvFuture<"v1Fa9:@9">;
+// @ts-expect-error
 Fail satisfies IPvFuture<"v1.:@">;
+// @ts-expect-error
 Fail satisfies IPvFuture<"v1F.:@9">;
 
 export type IPLiteral<T extends string> =
@@ -222,12 +237,21 @@ export type IPLiteral<T extends string> =
 Ok satisfies IPLiteral<"[::127.0.0.1]">;
 Ok satisfies IPLiteral<"[0000:0000::0000:0000:0000:127.0.0.1]">;
 Ok satisfies IPLiteral<"[v1.:]">;
+// @ts-expect-error
 Fail satisfies IPLiteral<"[v1.:@9]">;
+// @ts-expect-error
 Fail satisfies IPLiteral<"[v1F.:@9]">;
+// @ts-expect-error
 Fail satisfies IPLiteral<"[v1.:@]">;
+// @ts-expect-error
 Fail satisfies IPLiteral<"[v1Fa9.:@9]">;
+// @ts-expect-error
 Fail satisfies IPLiteral<"[v1Fa9.:@9]">;
+// @ts-expect-error
 Fail satisfies IPLiteral<"::127.0.0.1">;
+// @ts-expect-error
 Fail satisfies IPLiteral<"[]">;
+// @ts-expect-error
 Fail satisfies IPLiteral<"[127.0.0.1]">;
+// @ts-expect-error
 Fail satisfies IPLiteral<"[v1Fa9:@9]">;

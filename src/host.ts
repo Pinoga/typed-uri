@@ -38,7 +38,9 @@ Ok satisfies Host<"[v1.:]">;
 Ok satisfies Host<"[v1.:]">;
 Ok satisfies Host<"[v1.:9]">;
 Ok satisfies Host<"[v1F.:9]">;
+// @ts-expect-error
 Fail satisfies Host<"v1Fa9.:9">;
+// @ts-expect-error
 Fail satisfies Host<"[v1Fa9.:@9]">;
 
 export type UserInfo<T extends string> = ZeroOrMore<

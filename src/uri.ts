@@ -1,10 +1,34 @@
-import type { Colon, DoubleSlash, NumberSign, QuestionMark } from "./aliases";
+import type {
+  Colon,
+  DoubleSlash,
+  NumberSign,
+  QuestionMark,
+  Slash,
+} from "./aliases";
 import type { Fragment } from "./fragment";
+import type { Authority } from "./host";
+import type { PathRootless, PathWithRoot } from "./path";
 import type { Query } from "./query";
 import type { Scheme } from "./scheme";
 
 export type HierarchicalPart<T extends string> =
-  T extends `${DoubleSlash}${infer Rest}` ? (Rest extends 1 ? 1 : 1) : never;
+  T extends `${DoubleSlash}${infer MaybeAuthorityWithMaybePath}`
+    ? MaybeAuthorityWithMaybePath extends `${infer MaybeAuthority}${Slash}${infer MaybePath}`
+      ? MaybeAuthority extends Authority<MaybeAuthority>
+        ? `${Slash}${MaybePath}` extends PathWithRoot<`${Slash}${MaybePath}`>
+          ? T
+          : never // Invalid path
+        : MaybeAuthorityWithMaybePath extends Authority<MaybeAuthorityWithMaybePath>
+          ? T
+          : never // Invalid authority
+      : MaybeAuthorityWithMaybePath extends Authority<infer _>
+        ? T
+        : never // no path and invalid authority
+    : T extends PathWithRoot<T>
+      ? T
+      : T extends PathRootless<T>
+        ? T
+        : never;
 
 export type URI<T extends string> =
   T extends `${infer MaybeScheme}${Colon}${infer MaybeURINoScheme}`

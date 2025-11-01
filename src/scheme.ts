@@ -28,5 +28,7 @@ export type Scheme<T extends string> = T extends `${Letter}${infer Rest}`
 Ok satisfies Scheme<"A">;
 Ok satisfies Scheme<"http">;
 Ok satisfies Scheme<"G----http..+">;
+// @ts-expect-error
 Fail satisfies Scheme<"">;
+// @ts-expect-error
 Fail satisfies Scheme<"9">;
