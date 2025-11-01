@@ -214,6 +214,11 @@ export type IPvFuture<T extends string> =
 Ok satisfies IPvFuture<"v1.:">;
 Ok satisfies IPvFuture<"v1.:9">;
 Ok satisfies IPvFuture<"v1Fa9.:9">;
+Ok satisfies IPvFuture<"v1fa9.:9">;
+Ok satisfies IPvFuture<"v11a9.:9">;
+Ok satisfies IPvFuture<"v10a9.:9">;
+Ok satisfies IPvFuture<"v009.:9">;
+Ok satisfies IPvFuture<"v00a.:9">;
 // @ts-expect-error
 Fail satisfies IPvFuture<"">;
 // @ts-expect-error

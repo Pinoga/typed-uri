@@ -22,7 +22,9 @@ export type SchemeRest<T extends string> = T extends
 export type Scheme<T extends string> = T extends `${Letter}${infer Rest}`
   ? Rest extends ""
     ? T
-    : OneOrMore<Rest, Letter | Digit | Plus | Hyphen | Dot>
+    : OneOrMore<Rest, Letter | Digit | Plus | Hyphen | Dot> extends never
+      ? never
+      : T
   : never;
 
 Ok satisfies Scheme<"A">;
