@@ -12,14 +12,13 @@ import {
   Ok,
   type ExtractAfterLast,
   type ExtractUntilLast,
-  type RepetitionOf,
+  type ZeroOrMore,
 } from "./utils";
 
-type HostName<T extends string> = T extends ""
-  ? T
-  : T extends RepetitionOf<infer _, Unreserved | PercentEncoded | SubDelimiter>
-    ? T
-    : never;
+type HostName<T extends string> = ZeroOrMore<
+  T,
+  Unreserved | PercentEncoded | SubDelimiter
+>;
 
 export type Host<T extends string> =
   T extends IPLiteral<T>
@@ -42,35 +41,31 @@ Ok satisfies Host<"[v1F.:9]">;
 Fail satisfies Host<"v1Fa9.:9">;
 Fail satisfies Host<"[v1Fa9.:@9]">;
 
-export type UserInfo<T extends string> = T extends ""
-  ? T
-  : T extends RepetitionOf<
-        infer _,
-        Unreserved | PercentEncoded | SubDelimiter | Colon
-      >
-    ? T
-    : never;
+export type UserInfo<T extends string> = ZeroOrMore<
+  T,
+  Unreserved | PercentEncoded | SubDelimiter | Colon
+>;
 
 export type Authority<T extends string> =
   T extends `${infer MaybeUserInfo}${AtSign}${infer Rest}`
     ? MaybeUserInfo extends UserInfo<MaybeUserInfo>
       ? ExtractAfterLast<Rest, Colon> extends Port<infer _>
-        ? ExtractUntilLast<Rest, Colon> extends `${Host<infer _>}:`
+        ? ExtractUntilLast<Rest, Colon> extends `${Host<infer _>}${Colon}`
           ? T
           : never
         : Rest extends Host<infer _> // There's no non-empty port
           ? T
-          : Rest extends `${Host<infer _>}:` // There's an empty port
+          : Rest extends `${Host<infer _>}${Colon}` // There's an empty port
             ? T
             : never
       : never // If there's a @ then there has to be a user info
     : ExtractAfterLast<T, Colon> extends Port<infer _>
-      ? ExtractUntilLast<T, Colon> extends `${Host<infer _>}:`
+      ? ExtractUntilLast<T, Colon> extends `${Host<infer _>}${Colon}`
         ? T
         : never
       : T extends Host<infer _> // There's no non-empty port
         ? T
-        : T extends `${Host<infer _>}:` // There's an empty port
+        : T extends `${Host<infer _>}${Colon}` // There's an empty port
           ? T
           : never;
 

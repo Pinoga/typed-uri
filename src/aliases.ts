@@ -62,7 +62,7 @@ export type Colon = ":";
 export type AtSign = "@";
 export type Percent = "%";
 export type Tilde = "~";
-export type DoubleSlash = "//";
+export type DoubleSlash = `${Slash}${Slash}`;
 export type Slash = "/";
 export type QuestionMark = "?";
 export type NumberSign = "#";
@@ -125,19 +125,6 @@ export type Reserved = GenericDelimiter | SubDelimiter;
 export type PercentEncoded = `${Percent}${HexDigit}${HexDigit}`;
 
 export type UserInfoChar = Unreserved | PercentEncoded | SubDelimiter | Colon;
-
-export type PathChar =
-  | Unreserved
-  | PercentEncoded
-  | SubDelimiter
-  | Colon
-  | AtSign;
-
-export type PathCharNoColon = Exclude<PathChar, ":">;
-
-export type QueryChar = PathChar | Slash | QuestionMark;
-
-export type FragmentChar = QueryChar;
 
 export type Hex16Bits<
   T extends string,

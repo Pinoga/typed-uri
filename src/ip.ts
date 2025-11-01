@@ -4,6 +4,8 @@ import type {
   DecOctet,
   Hex16Bits,
   HexDigit,
+  LeftSquareBracket,
+  RightSquareBracket,
   SubDelimiter,
   Unreserved,
 } from "./aliases";
@@ -14,7 +16,7 @@ import {
   type ExtractAfterLast,
   type ExtractUntilLast,
   type Increment,
-  type RepetitionOf,
+  type OneOrMore,
 } from "./utils";
 
 export type IPv4<T extends string> =
@@ -46,7 +48,7 @@ type NToMHex16<
       : Acc extends N
         ? T
         : never
-    : T extends `${Hex16Bits<infer _S>}:${infer Rest}`
+    : T extends `${Hex16Bits<infer _S>}${Colon}${infer Rest}`
       ? Rest extends NToMHex16<
           Rest,
           N,
@@ -80,9 +82,9 @@ Fail satisfies NToMHex16<"0000:0000:", 1, 1>;
  * IPv6address
  */
 export type IPv6<T extends string> =
-  ExtractAfterLast<T, ":"> extends IPv4<infer _>
-    ? ExtractUntilLast<T, ":"> extends infer WithoutIPv4
-      ? WithoutIPv4 extends `${infer Left}::${infer Right}`
+  ExtractAfterLast<T, Colon> extends IPv4<infer _>
+    ? ExtractUntilLast<T, Colon> extends infer WithoutIPv4
+      ? WithoutIPv4 extends `${infer Left}${Colon}${Colon}${infer Right}`
         ? Right extends ""
           ? Left extends NToMHex16<infer _, 0, 5>
             ? T
@@ -95,15 +97,15 @@ export type IPv6<T extends string> =
               ? Right extends NToMHex16<infer _, 1, 4>
                 ? T
                 : never
-              : `${Left}:` extends NToMHex16<infer _, 2, 2>
+              : `${Left}${Colon}` extends NToMHex16<infer _, 2, 2>
                 ? Right extends NToMHex16<infer _, 1, 3>
                   ? T
                   : never
-                : `${Left}:` extends NToMHex16<infer _, 3, 3>
+                : `${Left}${Colon}` extends NToMHex16<infer _, 3, 3>
                   ? Right extends NToMHex16<infer _, 1, 2>
                     ? T
                     : never
-                  : `${Left}:` extends NToMHex16<infer _, 4, 4>
+                  : `${Left}${Colon}` extends NToMHex16<infer _, 4, 4>
                     ? Right extends NToMHex16<infer _, 1, 1>
                       ? T
                       : never
@@ -113,41 +115,41 @@ export type IPv6<T extends string> =
           : never
       : never // This should never happen
     : // There's no IPv4
-      T extends `${infer Left}::${infer Right}`
+      T extends `${infer Left}${Colon}${Colon}${infer Right}`
       ? Right extends ""
         ? Left extends NToMHex16<infer _, 0, 7>
           ? T
           : never
         : Left extends ""
-          ? `${Right}:` extends NToMHex16<infer _, 1, 7>
+          ? `${Right}${Colon}` extends NToMHex16<infer _, 1, 7>
             ? T // "::" *7( h16 ":" )
             : never
           : Left extends Hex16Bits<infer _>
-            ? `${Right}:` extends NToMHex16<infer _, 1, 6>
+            ? `${Right}${Colon}` extends NToMHex16<infer _, 1, 6>
               ? T
               : never
-            : `${Left}:` extends NToMHex16<infer _, 2, 2>
-              ? `${Right}:` extends NToMHex16<infer _, 1, 5>
+            : `${Left}${Colon}` extends NToMHex16<infer _, 2, 2>
+              ? `${Right}${Colon}` extends NToMHex16<infer _, 1, 5>
                 ? T
                 : never
-              : `${Left}:` extends NToMHex16<infer _, 3, 3>
-                ? `${Right}:` extends NToMHex16<infer _, 1, 4>
+              : `${Left}${Colon}` extends NToMHex16<infer _, 3, 3>
+                ? `${Right}${Colon}` extends NToMHex16<infer _, 1, 4>
                   ? T
                   : never
-                : `${Left}:` extends NToMHex16<infer _, 4, 4>
-                  ? `${Right}:` extends NToMHex16<infer _, 1, 3>
+                : `${Left}${Colon}` extends NToMHex16<infer _, 4, 4>
+                  ? `${Right}${Colon}` extends NToMHex16<infer _, 1, 3>
                     ? T
                     : never
-                  : `${Left}:` extends NToMHex16<infer _, 5, 5>
-                    ? `${Right}:` extends NToMHex16<infer _, 1, 2>
+                  : `${Left}${Colon}` extends NToMHex16<infer _, 5, 5>
+                    ? `${Right}${Colon}` extends NToMHex16<infer _, 1, 2>
                       ? T
                       : never
-                    : `${Left}:` extends NToMHex16<infer _, 6, 6>
+                    : `${Left}${Colon}` extends NToMHex16<infer _, 6, 6>
                       ? Right extends Hex16Bits<infer _>
                         ? T
                         : never
                       : never // No possibilities "left" for Left
-      : `${T}:` extends NToMHex16<infer _, 8, 8>
+      : `${T}${Colon}` extends NToMHex16<infer _, 8, 8>
         ? T
         : never;
 
@@ -195,7 +197,7 @@ Fail satisfies IPv6<"::0000:0000:0000:0000:0000:0000:0000:0000:0000:0000">; // s
 // End IPv6 Tests -------------------------------------------------------------------
 
 export type IPvFuture<T extends string> =
-  T extends `v${RepetitionOf<infer _, HexDigit>}.${RepetitionOf<infer _, Unreserved | SubDelimiter | Colon>}`
+  T extends `v${OneOrMore<infer _, HexDigit>}.${OneOrMore<infer _, Unreserved | SubDelimiter | Colon>}`
     ? T
     : never;
 
@@ -208,13 +210,14 @@ Fail satisfies IPvFuture<"v1Fa9:@9">;
 Fail satisfies IPvFuture<"v1.:@">;
 Fail satisfies IPvFuture<"v1F.:@9">;
 
-export type IPLiteral<T extends string> = T extends `[${infer IP}]`
-  ? IP extends IPv6<IP>
-    ? T
-    : IP extends IPvFuture<IP>
+export type IPLiteral<T extends string> =
+  T extends `${LeftSquareBracket}${infer IP}${RightSquareBracket}`
+    ? IP extends IPv6<IP>
       ? T
-      : never
-  : never;
+      : IP extends IPvFuture<IP>
+        ? T
+        : never
+    : never;
 
 Ok satisfies IPLiteral<"[::127.0.0.1]">;
 Ok satisfies IPLiteral<"[0000:0000::0000:0000:0000:127.0.0.1]">;

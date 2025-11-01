@@ -27,21 +27,25 @@ export type ExtractAfterLast<
 Ok satisfies ExtractAfterLast<"::0000:0000:0000:0000:0000:0000:127.0.0.1", ":">;
 Fail satisfies ExtractAfterLast<"0000", ":">;
 
-export type RepetitionOf<
+export type OneOrMore<
   T extends string,
   Char extends string,
 > = T extends `${Char}${infer Suffix}`
   ? Suffix extends ""
     ? T
-    : RepetitionOf<Suffix, Char> extends never
+    : OneOrMore<Suffix, Char> extends never
       ? never
       : T
   : never;
 
-Ok satisfies RepetitionOf<"P", "P">;
-Ok satisfies RepetitionOf<"PPP", "P">;
-Fail satisfies RepetitionOf<"8080", "0">;
-Fail satisfies RepetitionOf<"PPPG", "P">;
-Fail satisfies RepetitionOf<"PPPGP", "P">;
-Fail satisfies RepetitionOf<"", "P">;
-Fail satisfies RepetitionOf<"127.0.0.1]", "0">;
+export type ZeroOrMore<T extends string, Char extends string> = T extends ""
+  ? T
+  : OneOrMore<T, Char>;
+
+Ok satisfies OneOrMore<"P", "P">;
+Ok satisfies OneOrMore<"PPP", "P">;
+Fail satisfies OneOrMore<"8080", "0">;
+Fail satisfies OneOrMore<"PPPG", "P">;
+Fail satisfies OneOrMore<"PPPGP", "P">;
+Fail satisfies OneOrMore<"", "P">;
+Fail satisfies OneOrMore<"127.0.0.1]", "0">;
