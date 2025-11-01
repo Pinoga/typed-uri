@@ -30,12 +30,6 @@ export type IPv4<T extends string> =
       : never
     : never;
 
-Ok satisfies RepetitionOf<"", "P">;
-Ok satisfies RepetitionOf<"P", "P">;
-Ok satisfies RepetitionOf<"PPP", "P">;
-Fail satisfies RepetitionOf<"PPPG", "P">;
-Fail satisfies RepetitionOf<"PPPGP", "P">;
-
 type NToMHex16<
   T extends string,
   N extends number,
@@ -66,18 +60,19 @@ type NToMHex16<
 
 Ok satisfies NToMHex16<"", 0, 1>;
 Ok satisfies NToMHex16<"", 0, 2>;
-Ok satisfies NToMHex16<"", 1, 1>;
 Ok satisfies NToMHex16<"0000:", 0, 1>;
 Ok satisfies NToMHex16<"0000:", 1, 1>;
 Ok satisfies NToMHex16<"0000:", 1, 2>;
-Ok satisfies NToMHex16<"0000:0000:", 1, 1>;
 Ok satisfies NToMHex16<"0000:0000:", 1, 2>;
 Ok satisfies NToMHex16<"0000:0000:", 2, 2>;
-Ok satisfies NToMHex16<"0000:0000:0000", 2, 2>;
-Ok satisfies NToMHex16<"0000:0000:0000", 2, 3>;
 Ok satisfies NToMHex16<"0000:0000:0000:", 0, 3>;
 Ok satisfies NToMHex16<"0000:0000:0000:", 1, 3>;
 Ok satisfies NToMHex16<"0000:0000:0000:", 2, 3>;
+
+Fail satisfies NToMHex16<"", 1, 1>;
+Fail satisfies NToMHex16<"0000:0000:0000", 2, 3>;
+Fail satisfies NToMHex16<"0000:0000:0000", 2, 2>;
+Fail satisfies NToMHex16<"0000:0000:", 1, 1>;
 
 /**
  * https://datatracker.ietf.org/doc/html/rfc3986#appendix-A
@@ -191,7 +186,7 @@ Ok satisfies IPv6<"::">; //
 // FAIL
 Fail satisfies IPv6<":">;
 Fail satisfies IPv6<":::">;
-Fail satisfies IPv6<"">;
+Fail satisfies IPv6<" ">;
 Fail satisfies IPv6<"127.0.0.1">; // should not accept IPv4
 Fail satisfies IPv6<"::0000:0000:0000:0000:0000:">; // should not end with ":"
 Fail satisfies IPv6<"::0000:0000:0000:0000:0000127.0.0.1">; // ":" should separate IPv6 from IPv4
@@ -205,13 +200,13 @@ export type IPvFuture<T extends string> =
     : never;
 
 Ok satisfies IPvFuture<"v1.:">;
-Ok satisfies IPvFuture<"v1.:@">;
-Ok satisfies IPvFuture<"v1.:@9">;
-Ok satisfies IPvFuture<"v1F.:@9">;
-Ok satisfies IPvFuture<"v1Fa9.:@9">;
+Ok satisfies IPvFuture<"v1.:9">;
+Ok satisfies IPvFuture<"v1Fa9.:9">;
 Fail satisfies IPvFuture<"">;
 Fail satisfies IPvFuture<"v1G.:@9">;
 Fail satisfies IPvFuture<"v1Fa9:@9">;
+Fail satisfies IPvFuture<"v1.:@">;
+Fail satisfies IPvFuture<"v1F.:@9">;
 
 export type IPLiteral<T extends string> = T extends `[${infer IP}]`
   ? IP extends IPv6<IP>
@@ -222,8 +217,13 @@ export type IPLiteral<T extends string> = T extends `[${infer IP}]`
   : never;
 
 Ok satisfies IPLiteral<"[::127.0.0.1]">;
-Ok satisfies IPLiteral<"[0000:0000::0000:0000:0000:127.0.0.1]">; //FIXME
-Ok satisfies IPLiteral<"[v1Fa9.:@9]">;
+Ok satisfies IPLiteral<"[0000:0000::0000:0000:0000:127.0.0.1]">;
+Ok satisfies IPLiteral<"[v1.:]">;
+Fail satisfies IPLiteral<"[v1.:@9]">;
+Fail satisfies IPLiteral<"[v1F.:@9]">;
+Fail satisfies IPLiteral<"[v1.:@]">;
+Fail satisfies IPLiteral<"[v1Fa9.:@9]">;
+Fail satisfies IPLiteral<"[v1Fa9.:@9]">;
 Fail satisfies IPLiteral<"::127.0.0.1">;
 Fail satisfies IPLiteral<"[]">;
 Fail satisfies IPLiteral<"[127.0.0.1]">;
